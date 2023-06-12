@@ -11,16 +11,30 @@ class CurrencyRepositoryImpl extends CurrencyRepository {
   Future<CurrentModel> convertCurrency(
       {required String code,
       required String codein,
-      required int value}) async {
-    final res = await _dio
-        .get('https://economia.awesomeapi.com.br/$code-$codein/$value');
+      required String value}) async {
+    log(value);
 
-    final res2 = await _dio.get('https://cdn.moeda.info/api/latest.json');
+    if (value != "0" || value.isNotEmpty) {
+      final res = await _dio.get(
+          'https://api.invertexto.com/v1/currency/${code}_$codein?token=3745|78VYtk3vhWjclnPZ4gTSSfrLnyBv9Uc0');
+      final convertValue = double.parse(value);
+      log("convert value: $convertValue");
+      var price = convertValue * res.data['${code}_$codein']["price"];
 
-    log(res2.data);
+      log("res: ${res.data}");
+      final data = {
+        "code": code,
+        "codein": codein,
+        "bid": price.toStringAsFixed(2).toString(),
+      };
 
-    final data = res.data[0] as Map<String, dynamic>;
-    log('$data');
-    return CurrentModel.fromMap(data);
+      return CurrentModel.fromMap(data);
+    }
+
+    return CurrentModel.fromMap({
+      "code": code,
+      "codein": codein,
+      "bid": "0",
+    });
   }
 }
