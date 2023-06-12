@@ -15,7 +15,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final currencyController = CurrencyController(CurrencyRepositoryImpl());
-  final deboucer = Debouncer(milliseconds: 500);
+  final deboucer = Debouncer(milliseconds: 300);
   @override
   void initState() {
     super.initState();
@@ -32,11 +32,16 @@ class _HomePageState extends State<HomePage> {
       body: AnimatedBuilder(
           animation: currencyController,
           builder: (context, _) {
-            return Column(
-              children: [
-                SizedBox(
-                  child: Center(
+            return SizedBox(
+              width: MediaQuery.sizeOf(context).width,
+              height: MediaQuery.sizeOf(context).height,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         CurrencyDropDownButton(
                             codeCurrent: currencyController.codeCurrent,
@@ -64,13 +69,13 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                SizedBox(
-                  child: Center(
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  SizedBox(
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         CurrencyDropDownButton(
                             codeCurrent: currencyController.codeinCurrent,
@@ -97,20 +102,20 @@ class _HomePageState extends State<HomePage> {
                       ],
                     ),
                   ),
-                ),
-                const SizedBox(
-                  height: 30,
-                ),
-                SizedBox(
-                  child: ElevatedButton(
-                      onPressed: () async {
-                        await currencyController.replaceCodeByCodein(
-                            currencyController.codeCurrent,
-                            currencyController.codeinCurrent);
-                      },
-                      child: const Icon(Icons.compare_arrows)),
-                )
-              ],
+                  const SizedBox(
+                    height: 30,
+                  ),
+                  SizedBox(
+                    child: ElevatedButton(
+                        onPressed: () async {
+                          await currencyController.replaceCodeByCodein(
+                              currencyController.codeCurrent,
+                              currencyController.codeinCurrent);
+                        },
+                        child: const Icon(Icons.compare_arrows)),
+                  )
+                ],
+              ),
             );
           }),
     );

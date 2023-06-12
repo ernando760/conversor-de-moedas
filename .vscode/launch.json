@@ -4,10 +4,14 @@
     // Para obter mais informações, acesse: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
         {
             "name": "conversor_de_moedas",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "args": [
+                "--dart-define=API_TOKEN=3819|hQikJiav84X8Ma5QchAb9GUpEdG7sGdW"
+            ]
         },
         {
             "name": "conversor_de_moedas (profile mode)",

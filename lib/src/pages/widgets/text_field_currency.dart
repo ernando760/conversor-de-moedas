@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+
 import 'package:flutter/material.dart';
 
 class TextFieldCurrency extends StatelessWidget {
@@ -14,15 +15,16 @@ class TextFieldCurrency extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: MediaQuery.sizeOf(context).width * .1 // 100
+      width: MediaQuery.sizeOf(context).width * .2 // 100
       ,
-      height: 70,
+      height: 64,
       decoration: const BoxDecoration(),
       child: TextField(
-          keyboardType: TextInputType.number,
-          controller: controller,
-          onChanged: onChanged,
-          decoration: InputDecoration(hintText: hintText)),
+        decoration: InputDecoration(hintText: hintText),
+        keyboardType: TextInputType.number,
+        controller: controller,
+        onChanged: onChanged,
+      ),
     );
   }
 }

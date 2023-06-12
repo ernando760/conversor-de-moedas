@@ -5,17 +5,8 @@ import 'package:flutter/material.dart';
 import '../../models/currency_model.dart';
 import '../../repositories/currency_repository.dart';
 
-enum CurrencyStatusState {
-  initial,
-  loading,
-  success,
-  failure,
-}
-
 class CurrencyController extends ChangeNotifier {
   final CurrencyRepository _currencyRepository;
-  ValueNotifier<CurrencyStatusState> currencyStatus =
-      ValueNotifier<CurrencyStatusState>(CurrencyStatusState.initial);
   CurrentModel? currencyModel;
   String codeCurrent = "USD";
   String codeinCurrent = "BRL";
@@ -31,11 +22,9 @@ class CurrencyController extends ChangeNotifier {
       {required String code,
       required String codein,
       required String value}) async {
-    currencyStatus.value = CurrencyStatusState.loading;
     currencyModel = await _currencyRepository.convertCurrency(
         code: code, codein: codein, value: value);
     log('${currencyModel?.toMap()}');
-    currencyStatus.value = CurrencyStatusState.success;
     notifyListeners();
   }
 
