@@ -1,7 +1,8 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:conversor_de_moedas/src/pages/controllers/currency_controller.dart';
+import 'package:conversor_de_moedas/src/pages/widgets/currency_dropdown_button.dart';
+import 'package:conversor_de_moedas/src/pages/widgets/text_field_currency.dart';
 import 'package:conversor_de_moedas/src/repositories/currency_repository_impl.dart';
 import 'package:flutter/material.dart';
 
@@ -23,11 +24,6 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  void dispose() {
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -42,19 +38,9 @@ class _HomePageState extends State<HomePage> {
                   child: Center(
                     child: Row(
                       children: [
-                        DropdownButton<String>(
-                            value: currencyController.codeCurrent,
-                            items: currencyController.currencys
-                                .map(
-                                  (currency) => DropdownMenuItem(
-                                    value: currency,
-                                    child: Text(currency),
-                                    onTap: () {
-                                      log(currency);
-                                    },
-                                  ),
-                                )
-                                .toList(),
+                        CurrencyDropDownButton(
+                            codeCurrent: currencyController.codeCurrent,
+                            currencys: currencyController.currencys,
                             onChanged: (value) {
                               deboucer.run(() async {
                                 await currencyController
@@ -64,20 +50,17 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(
                           width: 50,
                         ),
-                        SizedBox(
-                          width: 100,
-                          height: 30,
-                          child: TextField(
-                            keyboardType: TextInputType.number,
+                        TextFieldCurrency(
+                            hintText: 'code',
                             controller: currencyController.codeControllerText,
-                            decoration: const InputDecoration(hintText: "code"),
                             onChanged: (value) {
-                              deboucer.run(() async {
-                                currencyController.onChangeTextFieldCode(value);
-                              });
-                            },
-                          ),
-                        )
+                              deboucer.run(
+                                () async {
+                                  currencyController
+                                      .onChangeTextFieldCode(value);
+                                },
+                              );
+                            }),
                       ],
                     ),
                   ),
@@ -89,19 +72,9 @@ class _HomePageState extends State<HomePage> {
                   child: Center(
                     child: Row(
                       children: [
-                        DropdownButton<String>(
-                            value: currencyController.codeinCurrent,
-                            items: currencyController.currencys
-                                .map(
-                                  (currency) => DropdownMenuItem(
-                                    value: currency,
-                                    child: Text(currency),
-                                    onTap: () {
-                                      log(currency);
-                                    },
-                                  ),
-                                )
-                                .toList(),
+                        CurrencyDropDownButton(
+                            codeCurrent: currencyController.codeinCurrent,
+                            currencys: currencyController.currencys,
                             onChanged: (value) {
                               deboucer.run(() async {
                                 await currencyController
@@ -111,22 +84,16 @@ class _HomePageState extends State<HomePage> {
                         const SizedBox(
                           width: 50,
                         ),
-                        SizedBox(
-                          width: 100,
-                          height: 30,
-                          child: TextField(
-                              keyboardType: TextInputType.number,
-                              controller:
-                                  currencyController.codeinControllerText,
-                              onChanged: (value) {
-                                deboucer.run(() async {
-                                  await currencyController
-                                      .onChangeTextFieldCodein(value);
-                                });
-                              },
-                              decoration:
-                                  const InputDecoration(hintText: "codein")),
-                        )
+                        TextFieldCurrency(
+                          hintText: 'codein',
+                          controller: currencyController.codeinControllerText,
+                          onChanged: (value) {
+                            deboucer.run(() async {
+                              await currencyController
+                                  .onChangeTextFieldCodein(value);
+                            });
+                          },
+                        ),
                       ],
                     ),
                   ),
