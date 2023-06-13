@@ -19,6 +19,7 @@ class CurrencyRepositoryImpl extends CurrencyRepository {
     log(value);
 
     if (value != "0" || value.isNotEmpty) {
+      log('$CurrencyConstants.apiToken');
       final res = await _dio.get(
           'https://api.invertexto.com/v1/currency/${code}_$codein?token=${CurrencyConstants.apiToken}');
       final convertValue = double.parse(value);
