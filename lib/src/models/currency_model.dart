@@ -1,23 +1,23 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-class CurrentModel {
+class CurrencyModel {
   final String code;
   final String codein;
   final String value;
 
-  CurrentModel({
+  CurrencyModel({
     required this.code,
     required this.codein,
     required this.value,
   });
 
-  CurrentModel copyWith({
+  CurrencyModel copyWith({
     String? code,
     String? codein,
     String? value,
   }) {
-    return CurrentModel(
+    return CurrencyModel(
       code: code ?? this.code,
       codein: codein ?? this.codein,
       value: value ?? this.value,
@@ -32,8 +32,8 @@ class CurrentModel {
     };
   }
 
-  factory CurrentModel.fromMap(Map<String, dynamic> map) {
-    return CurrentModel(
+  factory CurrencyModel.fromMap(Map<String, dynamic> map) {
+    return CurrencyModel(
       code: map['code'] as String,
       codein: map['codein'] as String,
       value: map['bid'] as String,
@@ -42,15 +42,15 @@ class CurrentModel {
 
   String toJson() => json.encode(toMap());
 
-  factory CurrentModel.fromJson(String source) =>
-      CurrentModel.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory CurrencyModel.fromJson(String source) =>
+      CurrencyModel.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() =>
       'CurrentModel(code: $code, codein: $codein, value: $value)';
 
   @override
-  bool operator ==(covariant CurrentModel other) {
+  bool operator ==(covariant CurrencyModel other) {
     if (identical(this, other)) return true;
 
     return other.code == code && other.codein == codein && other.value == value;

@@ -19,8 +19,12 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    Future(() => currencyController.convertCurrency(
-        code: "USD", codein: "BRL", value: "1"));
+    Future(() async {
+      await currencyController.getAllCurrencys();
+      // await currencyController.convertCurrency(
+      //     code: "USD", codein: "BRL", value: "1");
+      // await currencyController.getCombinationsCurrencys();
+    });
   }
 
   @override

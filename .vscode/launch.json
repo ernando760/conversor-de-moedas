@@ -9,9 +9,6 @@
             "name": "conversor_de_moedas",
             "request": "launch",
             "type": "dart",
-            "args": [
-                "--dart-define=API_TOKEN=3819|hQikJiav84X8Ma5QchAb9GUpEdG7sGdW"
-            ]
         },
         {
             "name": "conversor_de_moedas (profile mode)",
