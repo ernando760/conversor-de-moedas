@@ -1,60 +1,69 @@
 import 'dart:developer';
-
-import 'package:conversor_de_moedas/src/models/currency_model.dart';
-import 'package:conversor_de_moedas/src/repositories/currency_repository.dart';
 import 'package:dio/dio.dart';
+
+import '../../main.dart';
+import '../../src/models/currency_model.dart';
+import '../../src/repositories/currency_repository.dart';
 
 class CurrencyRepositoryImpl extends CurrencyRepository {
   final Dio _dio = Dio();
-  List<String> _currencys = [];
-  List<String> _combinationsCurrencys = [];
+  List<CurrencyModel> _currencies = [];
 
   @override
-  Future<List<String>> getAllCurrencys() async {
-    final res = await _dio
-        .get("https://economia.awesomeapi.com.br/json/available/uniq");
-    final currencysMap = res.data as Map<String, dynamic>;
-    _currencys = currencysMap.keys.map((currency) => currency).toList();
-    log("$_currencys", name: "currencys");
-    return _currencys;
-  }
+  Future<List<CurrencyModel>> getAllCurrencys() async {
+    final res = await _dio.get(
+      "${enviroment.urlBase}currencies",
+      queryParameters: {
+        "apikey": enviroment.apiKey,
+      },
+    );
 
-  @override
-  Future<List<String>> getCombinationsCurrencys() async {
-    final res =
-        await _dio.get("https://economia.awesomeapi.com.br/json/available");
-    final combinationsCurrencysMap = res.data as Map<String, dynamic>;
-    _combinationsCurrencys = combinationsCurrencysMap.keys
-        .map((combinationCurrency) => combinationCurrency)
+    final currencysMap = (res.data["data"] as Map<String, dynamic>);
+    log("$currencysMap");
+    _currencies = currencysMap.keys
+        .map((keys) => CurrencyModel.fromMap({
+              "name": currencysMap[keys]["name"],
+              "symbolNative": currencysMap[keys]["symbol_native"],
+              "code": currencysMap[keys]["code"]
+            }))
         .toList();
-    return _combinationsCurrencys;
+    log("$_currencies", name: "currencys");
+    return _currencies;
   }
 
   @override
-  Future<CurrencyModel> convertCurrency(
+  Future<({CurrencyModel code, CurrencyModel codein})> getCodeAndCodein(
+      {required String code, required String codein}) async {
+    final symbolNativeCode =
+        _currencies.firstWhere((currency) => currency.code == code);
+    final symbolNativeCodein =
+        _currencies.firstWhere((currency) => currency.code == codein);
+    return (code: symbolNativeCode, codein: symbolNativeCodein);
+  }
+
+  @override
+  Future<String> convertCurrency(
       {required String code,
       required String codein,
       required String value}) async {
     try {
-      final res = await _dio
-          .get("https://economia.awesomeapi.com.br/json/last/$code-$codein");
-      if (res.statusCode == 404) {
-        return CurrencyModel(code: code, codein: codein, value: value);
+      if (value.isEmpty) {
+        return "0";
       }
-      final convertValue = double.parse(value);
-      final media = (double.parse(res.data["$code$codein"]["bid"]) +
-              double.parse(res.data["$code$codein"]["ask"])) /
-          2;
-      final price = media * convertValue;
-
-      log("res: ${res.data}");
-      return CurrencyModel(
-          code: code,
-          codein: codein,
-          value: price.toStringAsFixed(2).toString());
+      final res = await _dio.get(
+        "${enviroment.urlBase}latest",
+        queryParameters: {
+          "apikey": enviroment.apiKey,
+          "base_currency": code,
+          "currencies": codein,
+        },
+      );
+      final double amount = res.data["data"][codein] * double.parse(value);
+      log("amount: $amount");
+      return amount.toStringAsFixed(2);
     } on DioError catch (e, s) {
       log("ERROR a conveter as moedas", error: e, stackTrace: s);
-      return CurrencyModel(code: code, codein: codein, value: value);
+      return "0";
     }
   }
 }

@@ -8,8 +8,10 @@ class TextFieldCurrency extends StatelessWidget {
     this.controller,
     required this.onChanged,
     required this.hintText,
+    required this.symbol,
   }) : super(key: key);
   final TextEditingController? controller;
+  final String symbol;
   final ValueChanged<String> onChanged;
   final String hintText;
   @override
@@ -20,7 +22,7 @@ class TextFieldCurrency extends StatelessWidget {
       height: 64,
       decoration: const BoxDecoration(),
       child: TextField(
-        decoration: InputDecoration(hintText: hintText),
+        decoration: InputDecoration(hintText: hintText, icon: Text(symbol)),
         keyboardType: TextInputType.number,
         controller: controller,
         onChanged: onChanged,

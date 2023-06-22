@@ -1,37 +1,36 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 
 import '../../models/currency_model.dart';
 import '../../repositories/currency_repository.dart';
 
-enum CurrencyMains {
-  usd('USD'),
-  eur('EUR');
-
-  final String name;
-  const CurrencyMains(this.name);
-}
-
 class CurrencyController extends ChangeNotifier {
   CurrencyController(this._currencyRepository);
 
   final CurrencyRepository _currencyRepository;
-  CurrencyModel? currencyModel;
+
+  String titleConvert = "Dolar/Real";
+
   String codeCurrent = "USD";
   String codeinCurrent = "BRL";
-  String usd = CurrencyMains.usd.name;
-  String eur = CurrencyMains.eur.name;
+  ({String symbolCode, String symbolCodein}) symbols = (
+    symbolCode: "\$",
+    symbolCodein: "R\$",
+  );
+
+  String amount = "0";
 
   TextEditingController codeControllerText = TextEditingController();
   TextEditingController codeinControllerText = TextEditingController();
 
-  List<String> currencys = [];
-  List<String> combinationsCurrencys = [];
+  List<CurrencyModel> currencies = [];
 
   Future<void> getAllCurrencys() async {
-    currencys = await _currencyRepository.getAllCurrencys();
-    log('$currencys');
+    currencies = await _currencyRepository.getAllCurrencys();
+    final (:code, :codein) = await _currencyRepository.getCodeAndCodein(
+        code: codeCurrent, codein: codeinCurrent);
+    symbols =
+        (symbolCode: code.symbolNative, symbolCodein: codein.symbolNative);
+    _titleConvert(code.name, codein.name);
     notifyListeners();
   }
 
@@ -40,117 +39,59 @@ class CurrencyController extends ChangeNotifier {
       required String codein,
       required String value}) async {
     if (value != "0" || value.isNotEmpty) {
-      var (newCode, newCodein) = await _getCombination(code, codein);
-
-      if (newCode.isNotEmpty && newCodein.isNotEmpty) {
-        log("$newCode-$newCodein", name: "get combination");
-        currencyModel = await _currencyRepository.convertCurrency(
-            code: newCode, codein: newCodein, value: value);
-        log('deu certo');
-      } else {
-        (newCode, newCodein) = await _getCombination(code, usd);
-        final currencyValueOne = (await _currencyRepository.convertCurrency(
-                code: newCode, codein: newCodein, value: value))
-            .value;
-        final currencyValueTwo = (await _currencyRepository.convertCurrency(
-                code: codein, codein: usd, value: value))
-            .value;
-        currencyModel = await _currencyRepository.convertCurrency(
-            code: code,
-            codein: codein,
-            value: (double.parse(currencyValueOne) /
-                    double.parse(currencyValueTwo))
-                .toString());
-        log("$code-$codein", name: "new code isEmpty");
-
-        // else if (newCode.isEmpty) {
-        //   (newCode, newCodein) =
-        //       await _getCombination(code, currencysMains.name);
-        //   log("$code-$codein", name: "new code in isEmpty");
-        //   final currencyValue = (await _currencyRepository.convertCurrency(
-        //         code: newCode, codein: newCodein, value: value))
-        //     .value;
-        // log("$code-$codein", name: "new code and new code not is isEmpty");
-        // currencyModel = await _currencyRepository.convertCurrency(
-        //     code: newCode, codein: newCodein, value: currencyValue);
-        // }
-      }
+      amount = (await _currencyRepository.convertCurrency(
+              code: code, codein: codein, value: value))
+          .toString();
     }
-    notifyListeners();
-  }
-
-  void changeCodeCurrency(String newCode) async {
-    if (newCode == codeinCurrent) {
-      codeinCurrent = codeCurrent;
-      codeCurrent = newCode;
-      await convertCurrency(
-          code: codeCurrent,
-          codein: codeinCurrent,
-          value: codeinControllerText.text);
-      if (currencyModel != null) {
-        codeControllerText.text = currencyModel!.value;
-      }
-    } else {
-      codeCurrent = newCode;
-      await convertCurrency(
-          code: codeCurrent,
-          codein: codeinCurrent,
-          value: codeControllerText.text);
-      if (currencyModel != null) {
-        codeinControllerText.text = currencyModel!.value;
-      }
-    }
-    notifyListeners();
-  }
-
-  void changeCodeinCurrency(String newCodein) async {
-    if (newCodein == codeCurrent) {
-      codeCurrent = codeinCurrent;
-      codeinCurrent = newCodein;
-      await convertCurrency(
-          code: codeCurrent,
-          codein: codeinCurrent,
-          value: codeControllerText.text);
-      if (currencyModel != null) {
-        codeinControllerText.text = currencyModel!.value;
-      }
-    } else {
-      codeinCurrent = newCodein;
-      await convertCurrency(
-          code: codeCurrent,
-          codein: codeinCurrent,
-          value: codeinControllerText.text);
-      if (currencyModel != null) {
-        codeControllerText.text = currencyModel!.value;
-      }
-    }
-
     notifyListeners();
   }
 
   Future<void> replaceCodeByCodein(String code, String codein) async {
     codeinCurrent = code;
     codeCurrent = codein;
+    var (code: newCode, codein: newCodein) =
+        await _currencyRepository.getCodeAndCodein(code: codein, codein: code);
+    symbols = (
+      symbolCode: newCode.symbolNative,
+      symbolCodein: newCodein.symbolNative
+    );
+    _titleConvert(newCode.name, newCodein.name);
     await convertCurrency(
         code: codeCurrent,
         codein: codeinCurrent,
         value: codeControllerText.text);
-    if (currencyModel != null) {
-      codeinControllerText.text = currencyModel!.value;
-    }
+    codeinControllerText.text = amount;
+
     notifyListeners();
   }
 
   Future<void> onChangeCodeDropDown(String? value) async {
     if (value != null) {
-      changeCodeCurrency(value);
+      final (newCode, newCodein) = _checkCodeOrCodein(newCode: value);
+      var (:code, :codein) = await _currencyRepository.getCodeAndCodein(
+          code: value, codein: codeinCurrent);
+      symbols =
+          (symbolCode: code.symbolNative, symbolCodein: codein.symbolNative);
+      _titleConvert(code.name, codein.name);
+      await convertCurrency(
+          code: newCode, codein: newCodein, value: codeinControllerText.text);
+      codeinControllerText.text = amount;
     }
     notifyListeners();
   }
 
   Future<void> onChangeCodeinDropDown(String? value) async {
     if (value != null) {
-      changeCodeinCurrency(value);
+      final (newCode, newCodein) = _checkCodeOrCodein(newCodein: value);
+      var (:code, :codein) = await _currencyRepository.getCodeAndCodein(
+          code: codeCurrent, codein: value);
+      symbols =
+          (symbolCode: code.symbolNative, symbolCodein: codein.symbolNative);
+      _titleConvert(code.name, codein.name);
+      await convertCurrency(
+          code: newCode, codein: newCodein, value: codeControllerText.text);
+
+      codeinControllerText.text = amount;
     }
     notifyListeners();
   }
@@ -159,13 +100,10 @@ class CurrencyController extends ChangeNotifier {
     if (value.isNotEmpty) {
       await convertCurrency(
           code: codeCurrent, codein: codeinCurrent, value: value);
-      if (currencyModel != null) {
-        codeinControllerText.text = currencyModel!.value;
-      }
+      codeinControllerText.text = amount;
     }
     if (value.isEmpty) {
       codeinControllerText.text = "";
-      currencyModel = currencyModel?.copyWith(value: "0");
     }
 
     notifyListeners();
@@ -175,30 +113,37 @@ class CurrencyController extends ChangeNotifier {
     if (value.isNotEmpty) {
       await convertCurrency(
           code: codeinCurrent, codein: codeCurrent, value: value);
-      if (currencyModel != null) {
-        codeControllerText.text = currencyModel!.value;
-      }
+      codeControllerText.text = amount;
     }
     if (value.isEmpty) {
       codeControllerText.text = "";
-      currencyModel = currencyModel?.copyWith(value: "0");
     }
-    log('change codein');
     notifyListeners();
   }
 
-  Future<(String code, String codein)> _getCombination(
-      String code, String codein) async {
-    final combinations = await _currencyRepository.getCombinationsCurrencys();
-    var combination = combinations.firstWhere(
-        (element) => element.contains("$code-$codein"),
-        orElse: () => "");
-    if (combination.isNotEmpty) {
-      log(combination, name: "combination");
-      final newCode = combination.replaceAll("-", "").substring(0, 3);
-      final newCodein = combination.replaceAll("-", "").substring(3, 6);
-      return (newCode, newCodein);
+  (String newCode, String newCodein) _checkCodeOrCodein(
+      {String? newCode, String? newCodein}) {
+    if (newCodein == null && newCode != null) {
+      if (newCode == codeinCurrent) {
+        codeinCurrent = codeCurrent;
+        codeCurrent = newCode;
+        return (codeCurrent, codeinCurrent);
+      }
+      codeCurrent = newCode;
+      return (codeCurrent, codeinCurrent);
     }
-    return ("", "");
+    if (newCode == null && newCodein != null) {
+      if (newCodein == codeCurrent) {
+        codeCurrent = codeinCurrent;
+        codeinCurrent = newCodein;
+        return (codeCurrent, codeinCurrent);
+      }
+      codeinCurrent = newCodein;
+      return (codeCurrent, codeinCurrent);
+    }
+    return (codeCurrent, codeinCurrent);
   }
+
+  void _titleConvert(String titleCode, titleCodein) =>
+      titleConvert = "$titleCode / $titleCodein";
 }

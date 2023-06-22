@@ -2,41 +2,41 @@
 import 'dart:convert';
 
 class CurrencyModel {
+  final String name;
+  final String symbolNative;
   final String code;
-  final String codein;
-  final String value;
 
   CurrencyModel({
+    required this.name,
+    required this.symbolNative,
     required this.code,
-    required this.codein,
-    required this.value,
   });
 
   CurrencyModel copyWith({
+    String? name,
+    String? symbolNative,
     String? code,
-    String? codein,
-    String? value,
   }) {
     return CurrencyModel(
+      name: name ?? this.name,
+      symbolNative: symbolNative ?? this.symbolNative,
       code: code ?? this.code,
-      codein: codein ?? this.codein,
-      value: value ?? this.value,
     );
   }
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'name': name,
+      'symbolNative': symbolNative,
       'code': code,
-      'codeIn': codein,
-      'value': value,
     };
   }
 
   factory CurrencyModel.fromMap(Map<String, dynamic> map) {
     return CurrencyModel(
+      name: map['name'] as String,
+      symbolNative: map['symbolNative'] as String,
       code: map['code'] as String,
-      codein: map['codein'] as String,
-      value: map['bid'] as String,
     );
   }
 
@@ -47,15 +47,17 @@ class CurrencyModel {
 
   @override
   String toString() =>
-      'CurrentModel(code: $code, codein: $codein, value: $value)';
+      'CurrencyModel(name: $name, symbolNative: $symbolNative, code: $code)';
 
   @override
   bool operator ==(covariant CurrencyModel other) {
     if (identical(this, other)) return true;
 
-    return other.code == code && other.codein == codein && other.value == value;
+    return other.name == name &&
+        other.symbolNative == symbolNative &&
+        other.code == code;
   }
 
   @override
-  int get hashCode => code.hashCode ^ codein.hashCode ^ value.hashCode;
+  int get hashCode => name.hashCode ^ symbolNative.hashCode ^ code.hashCode;
 }

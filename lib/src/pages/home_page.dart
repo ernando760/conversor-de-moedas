@@ -1,10 +1,11 @@
 import 'dart:async';
 
-import 'package:conversor_de_moedas/src/pages/controllers/currency_controller.dart';
-import 'package:conversor_de_moedas/src/pages/widgets/currency_dropdown_button.dart';
-import 'package:conversor_de_moedas/src/pages/widgets/text_field_currency.dart';
-import 'package:conversor_de_moedas/src/repositories/currency_repository_impl.dart';
 import 'package:flutter/material.dart';
+
+import '../../src/pages/controllers/currency_controller.dart';
+import '../../src/pages/widgets/currency_dropdown_button.dart';
+import '../../src/pages/widgets/text_field_currency.dart';
+import '../../src/repositories/currency_repository_impl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,9 +22,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     Future(() async {
       await currencyController.getAllCurrencys();
-      // await currencyController.convertCurrency(
-      //     code: "USD", codein: "BRL", value: "1");
-      // await currencyController.getCombinationsCurrencys();
     });
   }
 
@@ -43,13 +41,21 @@ class _HomePageState extends State<HomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  Container(
+                    padding: const EdgeInsets.only(bottom: 30),
+                    child: Text(
+                      currencyController.titleConvert,
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                   SizedBox(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         CurrencyDropDownButton(
                             codeCurrent: currencyController.codeCurrent,
-                            currencys: currencyController.currencys,
+                            currencys: currencyController.currencies,
                             onChanged: (value) {
                               deboucer.run(() async {
                                 await currencyController
@@ -61,6 +67,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         TextFieldCurrency(
                             hintText: 'code',
+                            symbol: currencyController.symbols.symbolCode,
                             controller: currencyController.codeControllerText,
                             onChanged: (value) {
                               deboucer.run(
@@ -83,7 +90,7 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         CurrencyDropDownButton(
                             codeCurrent: currencyController.codeinCurrent,
-                            currencys: currencyController.currencys,
+                            currencys: currencyController.currencies,
                             onChanged: (value) {
                               deboucer.run(() async {
                                 await currencyController
@@ -95,6 +102,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         TextFieldCurrency(
                           hintText: 'codein',
+                          symbol: currencyController.symbols.symbolCodein,
                           controller: currencyController.codeinControllerText,
                           onChanged: (value) {
                             deboucer.run(() async {
