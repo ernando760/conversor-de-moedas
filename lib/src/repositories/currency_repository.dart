@@ -2,8 +2,10 @@ import './../models/currency_model.dart';
 
 abstract class CurrencyRepository {
   Future<List<CurrencyModel>> getAllCurrencys();
-  Future<({CurrencyModel code, CurrencyModel codein})> getCodeAndCodein(
-      {required String code, required String codein});
+  Future<({CurrencyModel? currencyBase, CurrencyModel? currencyTarget})>
+      getCurrencyBaseAndCurrencyTarget(
+          {required String base, required String target});
   Future<String> convertCurrency(
-      {required String code, required String codein, required String value});
+      {required String base, required String target, required String value});
+  Future<CurrencyModel?> liveCurrency({required String base});
 }
